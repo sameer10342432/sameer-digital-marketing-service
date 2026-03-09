@@ -1,38 +1,86 @@
-import { type User, type InsertUser } from "@shared/schema";
-import { randomUUID } from "crypto";
+import crypto from 'crypto';
 
-// modify the interface with any CRUD methods
-// you might need
-
-export interface IStorage {
-  getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+export interface Inquiry {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  service: string;
+  message: string;
+  createdAt: string;
+  isRead: boolean;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<string, User>;
-
-  constructor() {
-    this.users = new Map();
-  }
-
-  async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
-  }
-
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
-  }
-
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
-  }
+interface AdminCredentials {
+  username: string;
+  password: string;
 }
 
-export const storage = new MemStorage();
+const inquiries: Inquiry[] = [];
+
+let adminCredentials: AdminCredentials = {
+  username: 'admin',
+  password: 'admin',
+};
+
+const SALT = crypto.randomBytes(32).toString('hex');
+
+function generateToken(username: string, password: string): string {
+  return crypto
+    .createHmac('sha256', SALT)
+    .update(`${username}:${password}`)
+    .digest('hex');
+}
+
+export const storage = {
+  addInquiry(data: Omit<Inquiry, 'id' | 'createdAt' | 'isRead'>): Inquiry {
+    const inquiry: Inquiry = {
+      id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+      ...data,
+      createdAt: new Date().toISOString(),
+      isRead: false,
+    };
+    inquiries.unshift(inquiry);
+    return inquiry;
+  },
+
+  getInquiries(): Inquiry[] {
+    return inquiries;
+  },
+
+  deleteInquiry(id: string): boolean {
+    const idx = inquiries.findIndex((i) => i.id === id);
+    if (idx === -1) return false;
+    inquiries.splice(idx, 1);
+    return true;
+  },
+
+  markAsRead(id: string): boolean {
+    const inquiry = inquiries.find((i) => i.id === id);
+    if (!inquiry) return false;
+    inquiry.isRead = true;
+    return true;
+  },
+
+  validateAdmin(username: string, password: string): string | null {
+    if (
+      username === adminCredentials.username &&
+      password === adminCredentials.password
+    ) {
+      return generateToken(username, password);
+    }
+    return null;
+  },
+
+  getCurrentToken(): string {
+    return generateToken(adminCredentials.username, adminCredentials.password);
+  },
+
+  updateCredentials(newUsername: string, newPassword: string): void {
+    adminCredentials = { username: newUsername, password: newPassword };
+  },
+
+  isValidToken(token: string): boolean {
+    return token === this.getCurrentToken();
+  },
+};
