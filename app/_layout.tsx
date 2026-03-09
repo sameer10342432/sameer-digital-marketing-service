@@ -13,18 +13,19 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { queryClient } from '@/lib/query-client';
-import Colors from '@/constants/colors';
+import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
 
 SplashScreen.preventAutoHideAsync();
 
 function RootLayoutNav() {
+  const { colors } = useTheme();
   return (
     <Stack
       screenOptions={{
         headerBackTitle: 'Back',
-        headerStyle: { backgroundColor: Colors.bg },
-        headerTintColor: Colors.text,
-        contentStyle: { backgroundColor: Colors.bg },
+        headerStyle: { backgroundColor: colors.bg },
+        headerTintColor: colors.text,
+        contentStyle: { backgroundColor: colors.bg },
       }}
     >
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
@@ -34,15 +35,15 @@ function RootLayoutNav() {
         options={{
           headerShown: true,
           title: 'Service Details',
-          headerStyle: { backgroundColor: Colors.surface },
-          headerTintColor: Colors.text,
+          headerStyle: { backgroundColor: colors.surface },
+          headerTintColor: colors.text,
         }}
       />
     </Stack>
   );
 }
 
-export default function RootLayout() {
+function AppWithProviders() {
   const [fontsLoaded, fontError] = useFonts({
     Inter_400Regular,
     Inter_500Medium,
@@ -59,13 +60,21 @@ export default function RootLayout() {
   if (!fontsLoaded && !fontError) return null;
 
   return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <KeyboardProvider>
+        <RootLayoutNav />
+      </KeyboardProvider>
+    </GestureHandlerRootView>
+  );
+}
+
+export default function RootLayout() {
+  return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        <GestureHandlerRootView style={{ flex: 1 }}>
-          <KeyboardProvider>
-            <RootLayoutNav />
-          </KeyboardProvider>
-        </GestureHandlerRootView>
+        <ThemeProvider>
+          <AppWithProviders />
+        </ThemeProvider>
       </QueryClientProvider>
     </ErrorBoundary>
   );

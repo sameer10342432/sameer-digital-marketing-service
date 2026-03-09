@@ -17,7 +17,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { fetch } from 'expo/fetch';
 import * as Haptics from 'expo-haptics';
-import Colors from '@/constants/colors';
+import { useTheme } from '@/contexts/ThemeContext';
 import { getApiUrl } from '@/lib/query-client';
 
 interface Inquiry {
@@ -60,6 +60,7 @@ function InquiryCard({
   onMarkRead: () => void;
 }) {
   const [expanded, setExpanded] = useState(false);
+  const { colors } = useTheme();
   const date = new Date(inquiry.createdAt).toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
@@ -68,7 +69,14 @@ function InquiryCard({
 
   return (
     <Pressable
-      style={[styles.inquiryCard, !inquiry.isRead && styles.inquiryCardUnread]}
+      style={[
+        styles.inquiryCard,
+        { backgroundColor: colors.surface, borderColor: colors.border },
+        !inquiry.isRead && {
+          borderColor: colors.accent + '50',
+          backgroundColor: colors.accentGlow,
+        },
+      ]}
       onPress={() => {
         setExpanded((e) => !e);
         if (!inquiry.isRead) onMarkRead();
@@ -76,35 +84,43 @@ function InquiryCard({
     >
       <View style={styles.inquiryHeader}>
         <View style={styles.inquiryLeft}>
-          {!inquiry.isRead && <View style={styles.unreadDot} />}
+          {!inquiry.isRead && <View style={[styles.unreadDot, { backgroundColor: colors.accent }]} />}
           <View style={styles.inquiryInfo}>
-            <Text style={styles.inquiryName}>{inquiry.name}</Text>
-            <Text style={styles.inquiryService}>{inquiry.service}</Text>
+            <Text style={[styles.inquiryName, { color: colors.text }]}>{inquiry.name}</Text>
+            <Text style={[styles.inquiryService, { color: colors.textMuted }]}>
+              {inquiry.service}
+            </Text>
           </View>
         </View>
         <View style={styles.inquiryRight}>
-          <Text style={styles.inquiryDate}>{date}</Text>
+          <Text style={[styles.inquiryDate, { color: colors.textMuted }]}>{date}</Text>
           <Ionicons
             name={expanded ? 'chevron-up' : 'chevron-down'}
             size={16}
-            color={Colors.textMuted}
+            color={colors.textMuted}
           />
         </View>
       </View>
 
       {expanded && (
         <View style={styles.inquiryExpanded}>
-          <View style={styles.divider} />
+          <View style={[styles.divider, { backgroundColor: colors.border }]} />
           <View style={styles.detailRow}>
-            <Ionicons name="mail-outline" size={14} color={Colors.textMuted} />
-            <Text style={styles.detailText}>{inquiry.email}</Text>
+            <Ionicons name="mail-outline" size={14} color={colors.textMuted} />
+            <Text style={[styles.detailText, { color: colors.textSecondary }]}>
+              {inquiry.email}
+            </Text>
           </View>
           <View style={styles.detailRow}>
-            <Ionicons name="call-outline" size={14} color={Colors.textMuted} />
-            <Text style={styles.detailText}>{inquiry.phone}</Text>
+            <Ionicons name="call-outline" size={14} color={colors.textMuted} />
+            <Text style={[styles.detailText, { color: colors.textSecondary }]}>
+              {inquiry.phone}
+            </Text>
           </View>
-          <View style={styles.messageBox}>
-            <Text style={styles.messageText}>{inquiry.message}</Text>
+          <View style={[styles.messageBox, { backgroundColor: colors.surface2 }]}>
+            <Text style={[styles.messageText, { color: colors.textSecondary }]}>
+              {inquiry.message}
+            </Text>
           </View>
           <Pressable
             style={styles.deleteBtn}
@@ -116,8 +132,8 @@ function InquiryCard({
               ]);
             }}
           >
-            <Ionicons name="trash-outline" size={15} color={Colors.error} />
-            <Text style={styles.deleteBtnText}>Delete</Text>
+            <Ionicons name="trash-outline" size={15} color={colors.error} />
+            <Text style={[styles.deleteBtnText, { color: colors.error }]}>Delete</Text>
           </Pressable>
         </View>
       )}
@@ -139,6 +155,7 @@ function SettingsModal({
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [saving, setSaving] = useState(false);
+  const { colors } = useTheme();
 
   if (!visible) return null;
 
@@ -168,48 +185,58 @@ function SettingsModal({
 
   return (
     <View style={styles.modalOverlay}>
-      <View style={styles.modal}>
-        <View style={styles.modalHeader}>
-          <Text style={styles.modalTitle}>Change Credentials</Text>
+      <View style={[styles.modal, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+        <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
+          <Text style={[styles.modalTitle, { color: colors.text }]}>Change Credentials</Text>
           <Pressable onPress={onClose}>
-            <Ionicons name="close" size={22} color={Colors.textMuted} />
+            <Ionicons name="close" size={22} color={colors.textMuted} />
           </Pressable>
         </View>
 
         <View style={styles.modalBody}>
           <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>New Username</Text>
-            <View style={styles.inputWrapper}>
+            <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>New Username</Text>
+            <View
+              style={[
+                styles.inputWrapper,
+                { backgroundColor: colors.surface2, borderColor: colors.border },
+              ]}
+            >
               <TextInput
-                style={styles.input}
+                style={[styles.input, { color: colors.text }]}
                 placeholder="New username"
-                placeholderTextColor={Colors.textMuted}
+                placeholderTextColor={colors.textMuted}
                 value={username}
                 onChangeText={setUsername}
                 autoCapitalize="none"
-                cursorColor={Colors.accent}
+                cursorColor={colors.accent}
               />
             </View>
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>New Password</Text>
-            <View style={styles.inputWrapper}>
+            <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>New Password</Text>
+            <View
+              style={[
+                styles.inputWrapper,
+                { backgroundColor: colors.surface2, borderColor: colors.border },
+              ]}
+            >
               <TextInput
-                style={styles.input}
+                style={[styles.input, { color: colors.text }]}
                 placeholder="New password"
-                placeholderTextColor={Colors.textMuted}
+                placeholderTextColor={colors.textMuted}
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry
-                cursorColor={Colors.accent}
+                cursorColor={colors.accent}
               />
             </View>
           </View>
 
           <Pressable style={styles.saveBtn} onPress={handleSave} disabled={saving}>
             <LinearGradient
-              colors={[Colors.accent, Colors.cyan]}
+              colors={[colors.accent, colors.cyan]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.saveGradient}
@@ -225,6 +252,7 @@ function SettingsModal({
 
 export default function AdminDashboardScreen() {
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
   const topPadding = Platform.OS === 'web' ? 67 : insets.top;
   const bottomPadding = Platform.OS === 'web' ? 34 : insets.bottom;
 
@@ -234,16 +262,19 @@ export default function AdminDashboardScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
 
-  const fetchInquiries = useCallback(async (tok: string) => {
-    const res = await adminRequest('GET', '/api/admin/inquiries', tok);
-    if (res.status === 401) {
-      await AsyncStorage.removeItem('admin_token');
-      router.replace('/admin');
-      return;
-    }
-    const data = await res.json();
-    setInquiries(data);
-  }, []);
+  const fetchInquiries = useCallback(
+    async (tok: string) => {
+      const res = await adminRequest('GET', '/api/admin/inquiries', tok);
+      if (res.status === 401) {
+        await AsyncStorage.removeItem('admin_token');
+        router.replace('/admin');
+        return;
+      }
+      const data = await res.json();
+      setInquiries(data);
+    },
+    [],
+  );
 
   useEffect(() => {
     (async () => {
@@ -285,7 +316,7 @@ export default function AdminDashboardScreen() {
     try {
       await adminRequest('PATCH', `/api/admin/inquiries/${id}/read`, token);
       setInquiries((prev) =>
-        prev.map((i) => (i.id === id ? { ...i, isRead: true } : i))
+        prev.map((i) => (i.id === id ? { ...i, isRead: true } : i)),
       );
     } catch {}
   };
@@ -299,42 +330,54 @@ export default function AdminDashboardScreen() {
 
   if (loading) {
     return (
-      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center', paddingTop: topPadding }]}>
-        <Text style={{ color: Colors.textMuted, fontFamily: 'Inter_400Regular' }}>Loading...</Text>
+      <View
+        style={[
+          styles.container,
+          { backgroundColor: colors.bg, justifyContent: 'center', alignItems: 'center', paddingTop: topPadding },
+        ]}
+      >
+        <Text style={{ color: colors.textMuted, fontFamily: 'Inter_400Regular' }}>
+          Loading...
+        </Text>
       </View>
     );
   }
 
   return (
-    <View style={[styles.container, { paddingTop: topPadding }]}>
-      <View style={styles.dashHeader}>
+    <View style={[styles.container, { backgroundColor: colors.bg, paddingTop: topPadding }]}>
+      <View style={[styles.dashHeader, { borderBottomColor: colors.border }]}>
         <View>
-          <Text style={styles.dashTitle}>Inquiries</Text>
+          <Text style={[styles.dashTitle, { color: colors.text }]}>Inquiries</Text>
           {unreadCount > 0 && (
-            <Text style={styles.unreadCount}>{unreadCount} unread</Text>
+            <Text style={[styles.unreadCount, { color: colors.accent }]}>
+              {unreadCount} unread
+            </Text>
           )}
         </View>
         <View style={styles.headerActions}>
           <Pressable
-            style={styles.headerBtn}
+            style={[styles.headerBtn, { backgroundColor: colors.surface }]}
             onPress={() => {
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
               setShowSettings(true);
             }}
           >
-            <Ionicons name="settings-outline" size={20} color={Colors.textSecondary} />
+            <Ionicons name="settings-outline" size={20} color={colors.textSecondary} />
           </Pressable>
-          <Pressable style={styles.headerBtn} onPress={handleLogout}>
-            <Ionicons name="log-out-outline" size={20} color={Colors.error} />
+          <Pressable
+            style={[styles.headerBtn, { backgroundColor: colors.surface }]}
+            onPress={handleLogout}
+          >
+            <Ionicons name="log-out-outline" size={20} color={colors.error} />
           </Pressable>
         </View>
       </View>
 
       {inquiries.length === 0 ? (
         <View style={styles.emptyState}>
-          <Ionicons name="mail-open-outline" size={48} color={Colors.textMuted} />
-          <Text style={styles.emptyTitle}>No Inquiries Yet</Text>
-          <Text style={styles.emptySubtitle}>
+          <Ionicons name="mail-open-outline" size={48} color={colors.textMuted} />
+          <Text style={[styles.emptyTitle, { color: colors.text }]}>No Inquiries Yet</Text>
+          <Text style={[styles.emptySubtitle, { color: colors.textMuted }]}>
             Contact form submissions will appear here.
           </Text>
         </View>
@@ -346,7 +389,7 @@ export default function AdminDashboardScreen() {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={handleRefresh}
-              tintColor={Colors.accent}
+              tintColor={colors.accent}
             />
           }
         >
@@ -372,10 +415,7 @@ export default function AdminDashboardScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.bg,
-  },
+  container: { flex: 1 },
   dashHeader: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -383,17 +423,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
   },
   dashTitle: {
     fontFamily: 'Inter_700Bold',
     fontSize: 24,
-    color: Colors.text,
   },
   unreadCount: {
     fontFamily: 'Inter_400Regular',
     fontSize: 13,
-    color: Colors.accent,
     marginTop: 2,
   },
   headerActions: {
@@ -406,22 +443,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 10,
-    backgroundColor: Colors.surface,
   },
   listContent: {
     padding: 16,
     gap: 10,
   },
   inquiryCard: {
-    backgroundColor: Colors.surface,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: Colors.border,
     overflow: 'hidden',
-  },
-  inquiryCardUnread: {
-    borderColor: Colors.accent + '50',
-    backgroundColor: Colors.accentGlow,
   },
   inquiryHeader: {
     flexDirection: 'row',
@@ -439,21 +469,16 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: Colors.accent,
     flexShrink: 0,
   },
-  inquiryInfo: {
-    flex: 1,
-  },
+  inquiryInfo: { flex: 1 },
   inquiryName: {
     fontFamily: 'Inter_600SemiBold',
     fontSize: 15,
-    color: Colors.text,
   },
   inquiryService: {
     fontFamily: 'Inter_400Regular',
     fontSize: 12,
-    color: Colors.textMuted,
     marginTop: 2,
   },
   inquiryRight: {
@@ -463,17 +488,13 @@ const styles = StyleSheet.create({
   inquiryDate: {
     fontFamily: 'Inter_400Regular',
     fontSize: 11,
-    color: Colors.textMuted,
   },
   inquiryExpanded: {
     paddingHorizontal: 14,
     paddingBottom: 14,
     gap: 10,
   },
-  divider: {
-    height: 1,
-    backgroundColor: Colors.border,
-  },
+  divider: { height: 1 },
   detailRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -482,17 +503,14 @@ const styles = StyleSheet.create({
   detailText: {
     fontFamily: 'Inter_400Regular',
     fontSize: 13,
-    color: Colors.textSecondary,
   },
   messageBox: {
-    backgroundColor: Colors.surface2,
     borderRadius: 10,
     padding: 12,
   },
   messageText: {
     fontFamily: 'Inter_400Regular',
     fontSize: 13,
-    color: Colors.textSecondary,
     lineHeight: 20,
   },
   deleteBtn: {
@@ -510,7 +528,6 @@ const styles = StyleSheet.create({
   deleteBtnText: {
     fontFamily: 'Inter_500Medium',
     fontSize: 13,
-    color: Colors.error,
   },
   emptyState: {
     flex: 1,
@@ -521,12 +538,10 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontFamily: 'Inter_600SemiBold',
     fontSize: 18,
-    color: Colors.text,
   },
   emptySubtitle: {
     fontFamily: 'Inter_400Regular',
     fontSize: 14,
-    color: Colors.textMuted,
     textAlign: 'center',
     paddingHorizontal: 40,
   },
@@ -543,12 +558,10 @@ const styles = StyleSheet.create({
     zIndex: 100,
   },
   modal: {
-    backgroundColor: Colors.surface,
     borderRadius: 20,
     width: '100%',
     maxWidth: 400,
     borderWidth: 1,
-    borderColor: Colors.border,
   },
   modalHeader: {
     flexDirection: 'row',
@@ -556,30 +569,23 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
   },
   modalTitle: {
     fontFamily: 'Inter_700Bold',
     fontSize: 18,
-    color: Colors.text,
   },
   modalBody: {
     padding: 20,
     gap: 16,
   },
-  inputGroup: {
-    gap: 8,
-  },
+  inputGroup: { gap: 8 },
   inputLabel: {
     fontFamily: 'Inter_500Medium',
     fontSize: 13,
-    color: Colors.textSecondary,
   },
   inputWrapper: {
-    backgroundColor: Colors.surface2,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: Colors.border,
     paddingHorizontal: 14,
     height: 50,
     justifyContent: 'center',
@@ -587,7 +593,6 @@ const styles = StyleSheet.create({
   input: {
     fontFamily: 'Inter_400Regular',
     fontSize: 15,
-    color: Colors.text,
   },
   saveBtn: {
     borderRadius: 12,

@@ -18,7 +18,7 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
-import Colors from '@/constants/colors';
+import { useTheme } from '@/contexts/ThemeContext';
 import { SERVICES } from '@/constants/services';
 import { apiRequest } from '@/lib/query-client';
 
@@ -42,27 +42,29 @@ function InputField({
   icon: string;
 }) {
   const [focused, setFocused] = useState(false);
+  const { colors } = useTheme();
 
   return (
     <View style={styles.inputGroup}>
-      <Text style={styles.inputLabel}>{label}</Text>
+      <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>{label}</Text>
       <View
         style={[
           styles.inputWrapper,
-          focused && styles.inputWrapperFocused,
+          { backgroundColor: colors.surface, borderColor: colors.border },
+          focused && { borderColor: colors.accent, backgroundColor: colors.surface2 },
           multiline && styles.inputWrapperMultiline,
         ]}
       >
         <Ionicons
           name={icon as any}
           size={18}
-          color={focused ? Colors.accent : Colors.textMuted}
+          color={focused ? colors.accent : colors.textMuted}
           style={styles.inputIcon}
         />
         <TextInput
-          style={[styles.input, multiline && styles.inputMultiline]}
+          style={[styles.input, { color: colors.text }, multiline && styles.inputMultiline]}
           placeholder={placeholder}
-          placeholderTextColor={Colors.textMuted}
+          placeholderTextColor={colors.textMuted}
           value={value}
           onChangeText={onChangeText}
           multiline={multiline}
@@ -71,8 +73,8 @@ function InputField({
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
           textAlignVertical={multiline ? 'top' : 'center'}
-          cursorColor={Colors.accent}
-          selectionColor={Colors.accent + '60'}
+          cursorColor={colors.accent}
+          selectionColor={colors.accent + '60'}
         />
       </View>
     </View>
@@ -87,36 +89,57 @@ function ServicePicker({
   onSelect: (s: string) => void;
 }) {
   const [open, setOpen] = useState(false);
+  const { colors } = useTheme();
 
   return (
     <View style={styles.inputGroup}>
-      <Text style={styles.inputLabel}>Service Interested In</Text>
+      <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>
+        Service Interested In
+      </Text>
       <Pressable
-        style={[styles.inputWrapper, open && styles.inputWrapperFocused]}
+        style={[
+          styles.inputWrapper,
+          { backgroundColor: colors.surface, borderColor: colors.border },
+          open && { borderColor: colors.accent, backgroundColor: colors.surface2 },
+        ]}
         onPress={() => setOpen((o) => !o)}
       >
         <Ionicons
           name="briefcase-outline"
           size={18}
-          color={open ? Colors.accent : Colors.textMuted}
+          color={open ? colors.accent : colors.textMuted}
           style={styles.inputIcon}
         />
-        <Text style={[styles.pickerText, !selected && { color: Colors.textMuted }]}>
+        <Text
+          style={[
+            styles.pickerText,
+            { color: selected ? colors.text : colors.textMuted },
+          ]}
+        >
           {selected || 'Select a service'}
         </Text>
         <Ionicons
           name={open ? 'chevron-up' : 'chevron-down'}
           size={16}
-          color={Colors.textMuted}
+          color={colors.textMuted}
         />
       </Pressable>
 
       {open && (
-        <View style={styles.pickerDropdown}>
+        <View
+          style={[
+            styles.pickerDropdown,
+            { backgroundColor: colors.surface2, borderColor: colors.border },
+          ]}
+        >
           {SERVICE_OPTIONS.map((opt) => (
             <Pressable
               key={opt}
-              style={[styles.pickerOption, selected === opt && styles.pickerOptionSelected]}
+              style={[
+                styles.pickerOption,
+                { borderBottomColor: colors.border },
+                selected === opt && { backgroundColor: colors.accentGlow },
+              ]}
               onPress={() => {
                 onSelect(opt);
                 setOpen(false);
@@ -126,13 +149,14 @@ function ServicePicker({
               <Text
                 style={[
                   styles.pickerOptionText,
-                  selected === opt && styles.pickerOptionTextSelected,
+                  { color: colors.text },
+                  selected === opt && { color: colors.accent, fontFamily: 'Inter_600SemiBold' },
                 ]}
               >
                 {opt}
               </Text>
               {selected === opt && (
-                <Ionicons name="checkmark" size={16} color={Colors.accent} />
+                <Ionicons name="checkmark" size={16} color={colors.accent} />
               )}
             </Pressable>
           ))}
@@ -144,6 +168,7 @@ function ServicePicker({
 
 export default function ContactScreen() {
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
   const topPadding = Platform.OS === 'web' ? 67 : insets.top;
   const bottomPadding = Platform.OS === 'web' ? 34 : 0;
 
@@ -181,7 +206,7 @@ export default function ContactScreen() {
       await apiRequest('POST', '/api/inquiries', form);
       setSubmitted(true);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    } catch (e) {
+    } catch {
       Alert.alert('Error', 'Failed to send inquiry. Please try again.');
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     } finally {
@@ -191,25 +216,30 @@ export default function ContactScreen() {
 
   if (submitted) {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: colors.bg }]}>
         <View style={[styles.successContainer, { paddingTop: topPadding }]}>
           <View style={styles.successIcon}>
-            <LinearGradient colors={[Colors.accent, Colors.cyan]} style={styles.successGradient}>
+            <LinearGradient
+              colors={[colors.accent, colors.cyan]}
+              style={styles.successGradient}
+            >
               <Ionicons name="checkmark" size={36} color="#fff" />
             </LinearGradient>
           </View>
-          <Text style={styles.successTitle}>Inquiry Sent!</Text>
-          <Text style={styles.successSubtitle}>
+          <Text style={[styles.successTitle, { color: colors.text }]}>Inquiry Sent!</Text>
+          <Text style={[styles.successSubtitle, { color: colors.textSecondary }]}>
             Thank you, {form.name.split(' ')[0]}! I'll get back to you as soon as possible.
           </Text>
           <Pressable
-            style={styles.newInquiryBtn}
+            style={[styles.newInquiryBtn, { borderColor: colors.accent }]}
             onPress={() => {
               setSubmitted(false);
               setForm({ name: '', email: '', phone: '', service: '', message: '' });
             }}
           >
-            <Text style={styles.newInquiryText}>Send Another Inquiry</Text>
+            <Text style={[styles.newInquiryText, { color: colors.accent }]}>
+              Send Another Inquiry
+            </Text>
           </Pressable>
         </View>
       </View>
@@ -217,14 +247,17 @@ export default function ContactScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.bg }]}>
       <ScrollView
-        contentContainerStyle={[styles.scrollContent, { paddingTop: topPadding + 16, paddingBottom: bottomPadding + 100 }]}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingTop: topPadding + 16, paddingBottom: bottomPadding + 100 },
+        ]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        <Text style={styles.headerTitle}>Contact</Text>
-        <Text style={styles.headerSubtitle}>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Contact</Text>
+        <Text style={[styles.headerSubtitle, { color: colors.textMuted }]}>
           Fill out the form and I'll reach out shortly.
         </Text>
 
@@ -265,12 +298,14 @@ export default function ContactScreen() {
 
         <Animated.View style={[btnStyle, styles.submitBtnWrap]}>
           <Pressable
-            style={[styles.submitBtn, !isValid && styles.submitBtnDisabled]}
+            style={[styles.submitBtn, !isValid && { opacity: 0.5 }]}
             onPress={handleSubmit}
             disabled={!isValid || submitting}
           >
             <LinearGradient
-              colors={isValid ? [Colors.accent, Colors.cyan] : [Colors.border, Colors.border]}
+              colors={
+                isValid ? [colors.accent, colors.cyan] : [colors.border, colors.border]
+              }
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.submitGradient}
@@ -292,50 +327,33 @@ export default function ContactScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.bg,
-  },
+  container: { flex: 1 },
   scrollContent: {
     paddingHorizontal: 16,
-    gap: 0,
   },
   headerTitle: {
     fontFamily: 'Inter_700Bold',
     fontSize: 28,
-    color: Colors.text,
     marginBottom: 6,
   },
   headerSubtitle: {
     fontFamily: 'Inter_400Regular',
     fontSize: 14,
-    color: Colors.textMuted,
     marginBottom: 24,
   },
-  form: {
-    gap: 16,
-  },
-  inputGroup: {
-    gap: 8,
-  },
+  form: { gap: 16 },
+  inputGroup: { gap: 8 },
   inputLabel: {
     fontFamily: 'Inter_500Medium',
     fontSize: 13,
-    color: Colors.textSecondary,
   },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.surface,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: Colors.border,
     paddingHorizontal: 14,
     minHeight: 52,
-  },
-  inputWrapperFocused: {
-    borderColor: Colors.accent,
-    backgroundColor: Colors.surface2,
   },
   inputWrapperMultiline: {
     alignItems: 'flex-start',
@@ -343,29 +361,21 @@ const styles = StyleSheet.create({
     paddingBottom: 14,
     minHeight: 120,
   },
-  inputIcon: {
-    marginRight: 10,
-  },
+  inputIcon: { marginRight: 10 },
   input: {
     flex: 1,
     fontFamily: 'Inter_400Regular',
     fontSize: 15,
-    color: Colors.text,
   },
-  inputMultiline: {
-    height: 90,
-  },
+  inputMultiline: { height: 90 },
   pickerText: {
     flex: 1,
     fontFamily: 'Inter_400Regular',
     fontSize: 15,
-    color: Colors.text,
   },
   pickerDropdown: {
-    backgroundColor: Colors.surface2,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: Colors.border,
     overflow: 'hidden',
     marginTop: 4,
   },
@@ -376,29 +386,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 13,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
-  },
-  pickerOptionSelected: {
-    backgroundColor: Colors.accentGlow,
   },
   pickerOptionText: {
     fontFamily: 'Inter_400Regular',
     fontSize: 14,
-    color: Colors.text,
   },
-  pickerOptionTextSelected: {
-    fontFamily: 'Inter_600SemiBold',
-    color: Colors.accent,
-  },
-  submitBtnWrap: {
-    marginTop: 28,
-  },
+  submitBtnWrap: { marginTop: 28 },
   submitBtn: {
     borderRadius: 14,
     overflow: 'hidden',
-  },
-  submitBtnDisabled: {
-    opacity: 0.5,
   },
   submitGradient: {
     flexDirection: 'row',
@@ -434,12 +430,10 @@ const styles = StyleSheet.create({
   successTitle: {
     fontFamily: 'Inter_700Bold',
     fontSize: 28,
-    color: Colors.text,
   },
   successSubtitle: {
     fontFamily: 'Inter_400Regular',
     fontSize: 15,
-    color: Colors.textSecondary,
     textAlign: 'center',
     lineHeight: 23,
   },
@@ -449,11 +443,9 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: Colors.accent,
   },
   newInquiryText: {
     fontFamily: 'Inter_600SemiBold',
     fontSize: 15,
-    color: Colors.accent,
   },
 });

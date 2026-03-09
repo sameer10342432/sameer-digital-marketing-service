@@ -12,66 +12,84 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
-import Colors from '@/constants/colors';
+import { useTheme } from '@/contexts/ThemeContext';
 import { SERVICES } from '@/constants/services';
 
 export default function ServiceDetailScreen() {
   const { category } = useLocalSearchParams<{ category: string }>();
   const service = SERVICES.find((s) => s.id === category);
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
   const bottomPadding = Platform.OS === 'web' ? 34 : insets.bottom;
 
   if (!service) {
     return (
-      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-        <Text style={{ color: Colors.textMuted }}>Service not found.</Text>
+      <View style={[styles.container, { backgroundColor: colors.bg, justifyContent: 'center', alignItems: 'center' }]}>
+        <Text style={{ color: colors.textMuted }}>Service not found.</Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.bg }]}>
       <ScrollView
         contentContainerStyle={[styles.scrollContent, { paddingBottom: bottomPadding + 40 }]}
         showsVerticalScrollIndicator={false}
       >
         <LinearGradient
-          colors={[service.bgColor, Colors.bg]}
+          colors={[service.bgColor, colors.bg]}
           style={styles.heroBg}
         >
           <View style={[styles.heroIcon, { backgroundColor: service.color + '22' }]}>
             <Ionicons name={service.iconName as any} size={40} color={service.color} />
           </View>
-          <Text style={styles.heroTitle}>{service.title}</Text>
-          <Text style={styles.heroDesc}>{service.description}</Text>
+          <Text style={[styles.heroTitle, { color: colors.text }]}>{service.title}</Text>
+          <Text style={[styles.heroDesc, { color: colors.textSecondary }]}>
+            {service.description}
+          </Text>
         </LinearGradient>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>What's Included</Text>
-          <View style={styles.itemsCard}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>What's Included</Text>
+          <View
+            style={[
+              styles.itemsCard,
+              { backgroundColor: colors.surface, borderColor: colors.border },
+            ]}
+          >
             {service.subItems.map((item, idx) => (
               <View key={item}>
                 <View style={styles.serviceItem}>
                   <View style={[styles.itemCheck, { backgroundColor: service.bgColor }]}>
                     <Ionicons name="checkmark" size={14} color={service.color} />
                   </View>
-                  <Text style={styles.itemText}>{item}</Text>
+                  <Text style={[styles.itemText, { color: colors.text }]}>{item}</Text>
                 </View>
-                {idx < service.subItems.length - 1 && <View style={styles.divider} />}
+                {idx < service.subItems.length - 1 && (
+                  <View style={[styles.divider, { backgroundColor: colors.border }]} />
+                )}
               </View>
             ))}
           </View>
         </View>
 
         <View style={styles.section}>
-          <View style={styles.whyCard}>
+          <View
+            style={[
+              styles.whyCard,
+              { backgroundColor: colors.surface, borderColor: colors.border },
+            ]}
+          >
             <View style={[styles.whyIcon, { backgroundColor: service.bgColor }]}>
               <Ionicons name="star" size={18} color={service.color} />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={styles.whyTitle}>Why choose this service?</Text>
-              <Text style={styles.whyText}>
-                Get professional results with a tailored approach. I work closely with you to understand your goals and deliver solutions that drive real growth.
+              <Text style={[styles.whyTitle, { color: colors.text }]}>
+                Why choose this service?
+              </Text>
+              <Text style={[styles.whyText, { color: colors.textSecondary }]}>
+                Get professional results with a tailored approach. I work closely with you to
+                understand your goals and deliver solutions that drive real growth.
               </Text>
             </View>
           </View>
@@ -100,13 +118,8 @@ export default function ServiceDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.bg,
-  },
-  scrollContent: {
-    gap: 0,
-  },
+  container: { flex: 1 },
+  scrollContent: { gap: 0 },
   heroBg: {
     padding: 28,
     paddingTop: 20,
@@ -124,13 +137,11 @@ const styles = StyleSheet.create({
   heroTitle: {
     fontFamily: 'Inter_700Bold',
     fontSize: 26,
-    color: Colors.text,
     textAlign: 'center',
   },
   heroDesc: {
     fontFamily: 'Inter_400Regular',
     fontSize: 15,
-    color: Colors.textSecondary,
     textAlign: 'center',
     lineHeight: 23,
   },
@@ -142,13 +153,10 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontFamily: 'Inter_700Bold',
     fontSize: 18,
-    color: Colors.text,
   },
   itemsCard: {
-    backgroundColor: Colors.surface,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: Colors.border,
     overflow: 'hidden',
   },
   serviceItem: {
@@ -168,19 +176,15 @@ const styles = StyleSheet.create({
   itemText: {
     fontFamily: 'Inter_500Medium',
     fontSize: 15,
-    color: Colors.text,
   },
   divider: {
     height: 1,
-    backgroundColor: Colors.border,
     marginLeft: 58,
   },
   whyCard: {
-    backgroundColor: Colors.surface,
     borderRadius: 16,
     padding: 18,
     borderWidth: 1,
-    borderColor: Colors.border,
     flexDirection: 'row',
     gap: 14,
     alignItems: 'flex-start',
@@ -197,13 +201,11 @@ const styles = StyleSheet.create({
   whyTitle: {
     fontFamily: 'Inter_600SemiBold',
     fontSize: 15,
-    color: Colors.text,
     marginBottom: 8,
   },
   whyText: {
     fontFamily: 'Inter_400Regular',
     fontSize: 14,
-    color: Colors.textSecondary,
     lineHeight: 21,
   },
   ctaBtn: {

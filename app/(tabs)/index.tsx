@@ -1,28 +1,27 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
   Pressable,
   Platform,
   Dimensions,
 } from 'react-native';
 import { router } from 'expo-router';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
-  withRepeat,
   withSequence,
-  withTiming,
   useAnimatedScrollHandler,
+  withTiming,
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
-import Colors from '@/constants/colors';
+import { useTheme } from '@/contexts/ThemeContext';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { SERVICES } from '@/constants/services';
 
 const { width } = Dimensions.get('window');
@@ -34,16 +33,16 @@ const STATS = [
   { label: 'Services', value: '7' },
 ];
 
-function StatCard({ label, value }: { label: string; value: string }) {
+function StatCard({ label, value, colors }: { label: string; value: string; colors: any }) {
   return (
-    <View style={styles.statCard}>
-      <Text style={styles.statValue}>{value}</Text>
-      <Text style={styles.statLabel}>{label}</Text>
+    <View style={[styles.statCard, { backgroundColor: colors.surface2 }]}>
+      <Text style={[styles.statValue, { color: colors.text }]}>{value}</Text>
+      <Text style={[styles.statLabel, { color: colors.textMuted }]}>{label}</Text>
     </View>
   );
 }
 
-function ServiceChip({ service, onPress }: { service: typeof SERVICES[0]; onPress: () => void }) {
+function ServiceChip({ service, onPress, colors }: { service: typeof SERVICES[0]; onPress: () => void; colors: any }) {
   const scale = useSharedValue(1);
   const animStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
 
@@ -55,7 +54,10 @@ function ServiceChip({ service, onPress }: { service: typeof SERVICES[0]; onPres
 
   return (
     <Animated.View style={animStyle}>
-      <Pressable onPress={handlePress} style={[styles.serviceChip, { backgroundColor: service.bgColor }]}>
+      <Pressable
+        onPress={handlePress}
+        style={[styles.serviceChip, { backgroundColor: service.bgColor }]}
+      >
         <View style={[styles.serviceChipIcon, { backgroundColor: service.color + '25' }]}>
           <Ionicons name={service.iconName as any} size={20} color={service.color} />
         </View>
@@ -68,6 +70,7 @@ function ServiceChip({ service, onPress }: { service: typeof SERVICES[0]; onPres
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
   const scrollY = useSharedValue(0);
 
   const scrollHandler = useAnimatedScrollHandler((event) => {
@@ -81,43 +84,69 @@ export default function HomeScreen() {
   const topPadding = Platform.OS === 'web' ? 67 : insets.top;
   const bottomPadding = Platform.OS === 'web' ? 34 : 0;
 
+  const heroBgColors: [string, string] = colors.isDark
+    ? ['#0D1535', colors.bg]
+    : ['#DCEAFF', colors.bg];
+
   return (
-    <View style={styles.container}>
-      <Animated.View style={[styles.floatingHeader, { top: topPadding }, headerStyle]}>
-        <Text style={styles.floatingTitle}>Sameer Digital</Text>
+    <View style={[styles.container, { backgroundColor: colors.bg }]}>
+      <Animated.View
+        style={[
+          styles.floatingHeader,
+          { top: topPadding, backgroundColor: colors.bg + 'EE' },
+          headerStyle,
+        ]}
+      >
+        <Text style={[styles.floatingTitle, { color: colors.text }]}>Sameer Digital</Text>
       </Animated.View>
 
-      <Pressable
-        style={[styles.adminButton, { top: topPadding + 12 }]}
-        onPress={() => {
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-          router.push('/admin');
-        }}
-      >
-        <Ionicons name="settings-outline" size={20} color={Colors.textMuted} />
-      </Pressable>
+      <View style={[styles.topActions, { top: topPadding + 8 }]}>
+        <ThemeToggle />
+        <Pressable
+          style={[styles.adminButton, { backgroundColor: colors.surface }]}
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            router.push('/admin');
+          }}
+        >
+          <Ionicons name="settings-outline" size={18} color={colors.textMuted} />
+        </Pressable>
+      </View>
 
       <Animated.ScrollView
         onScroll={scrollHandler}
         scrollEventThrottle={16}
-        contentContainerStyle={[styles.scrollContent, { paddingTop: topPadding + 20, paddingBottom: bottomPadding + 100 }]}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingTop: topPadding + 20, paddingBottom: bottomPadding + 100 },
+        ]}
         showsVerticalScrollIndicator={false}
       >
         <LinearGradient
-          colors={['#0D1535', Colors.bg]}
+          colors={heroBgColors}
           style={styles.heroBg}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
         >
-          <View style={styles.heroBadge}>
+          <View
+            style={[
+              styles.heroBadge,
+              {
+                backgroundColor: colors.accentGlow,
+                borderColor: colors.accent + '30',
+              },
+            ]}
+          >
             <View style={styles.heroBadgeDot} />
-            <Text style={styles.heroBadgeText}>Available for projects</Text>
+            <Text style={[styles.heroBadgeText, { color: colors.accentLight }]}>
+              Available for projects
+            </Text>
           </View>
 
-          <Text style={styles.heroName}>Muhammad Sameer</Text>
-          <Text style={styles.heroTitle}>Digital Services</Text>
+          <Text style={[styles.heroName, { color: colors.text }]}>Muhammad Sameer</Text>
+          <Text style={[styles.heroTitle, { color: colors.accent }]}>Digital Services</Text>
 
-          <Text style={styles.heroSubtitle}>
+          <Text style={[styles.heroSubtitle, { color: colors.textSecondary }]}>
             Expert in marketing, development & AI solutions that grow your business online.
           </Text>
 
@@ -130,7 +159,7 @@ export default function HomeScreen() {
               }}
             >
               <LinearGradient
-                colors={[Colors.accent, Colors.cyan]}
+                colors={[colors.accent, colors.cyan]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.ctaGradient}
@@ -141,28 +170,30 @@ export default function HomeScreen() {
             </Pressable>
 
             <Pressable
-              style={styles.ctaSecondary}
+              style={[styles.ctaSecondary, { borderColor: colors.border }]}
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 router.push('/(tabs)/services');
               }}
             >
-              <Text style={styles.ctaSecondaryText}>View Services</Text>
+              <Text style={[styles.ctaSecondaryText, { color: colors.textSecondary }]}>
+                View Services
+              </Text>
             </Pressable>
           </View>
         </LinearGradient>
 
-        <View style={styles.statsRow}>
+        <View style={[styles.statsRow, { backgroundColor: colors.surface }]}>
           {STATS.map((s) => (
-            <StatCard key={s.label} label={s.label} value={s.value} />
+            <StatCard key={s.label} label={s.label} value={s.value} colors={colors} />
           ))}
         </View>
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Services</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Services</Text>
             <Pressable onPress={() => router.push('/(tabs)/services')}>
-              <Text style={styles.sectionLink}>See all</Text>
+              <Text style={[styles.sectionLink, { color: colors.accent }]}>See all</Text>
             </Pressable>
           </View>
 
@@ -170,30 +201,45 @@ export default function HomeScreen() {
             <ServiceChip
               key={service.id}
               service={service}
-              onPress={() => router.push({ pathname: '/service/[category]', params: { category: service.id } })}
+              colors={colors}
+              onPress={() =>
+                router.push({
+                  pathname: '/service/[category]',
+                  params: { category: service.id },
+                })
+              }
             />
           ))}
         </View>
 
         <Pressable
-          style={styles.contactBanner}
+          style={[styles.contactBanner, { borderColor: colors.border }]}
           onPress={() => {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
             router.push('/(tabs)/contact');
           }}
         >
           <LinearGradient
-            colors={['#1a2550', '#0D1535']}
+            colors={colors.isDark ? ['#1a2550', '#0D1535'] : ['#DCEAFF', '#EAF0FF']}
             style={styles.contactBannerGradient}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
           >
             <View style={styles.contactBannerLeft}>
-              <Text style={styles.contactBannerTitle}>Ready to start?</Text>
-              <Text style={styles.contactBannerSub}>Send me your project details</Text>
+              <Text style={[styles.contactBannerTitle, { color: colors.text }]}>
+                Ready to start?
+              </Text>
+              <Text style={[styles.contactBannerSub, { color: colors.textSecondary }]}>
+                Send me your project details
+              </Text>
             </View>
-            <View style={styles.contactBannerIcon}>
-              <Ionicons name="mail" size={22} color={Colors.accent} />
+            <View
+              style={[
+                styles.contactBannerIcon,
+                { backgroundColor: colors.accentGlow, borderColor: colors.accent + '40' },
+              ]}
+            >
+              <Ionicons name="mail" size={22} color={colors.accent} />
             </View>
           </LinearGradient>
         </Pressable>
@@ -203,10 +249,7 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.bg,
-  },
+  container: { flex: 1 },
   floatingHeader: {
     position: 'absolute',
     left: 0,
@@ -214,43 +257,42 @@ const styles = StyleSheet.create({
     zIndex: 10,
     paddingHorizontal: 20,
     paddingVertical: 12,
-    backgroundColor: Colors.bg + 'EE',
   },
   floatingTitle: {
     fontFamily: 'Inter_700Bold',
     fontSize: 18,
-    color: Colors.text,
     textAlign: 'center',
   },
-  adminButton: {
+  topActions: {
     position: 'absolute',
     right: 16,
     zIndex: 20,
-    width: 40,
-    height: 40,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  adminButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  scrollContent: {
-    gap: 0,
-  },
+  scrollContent: { gap: 0 },
   heroBg: {
     paddingHorizontal: 20,
     paddingTop: 16,
     paddingBottom: 32,
-    marginBottom: 0,
   },
   heroBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: 'rgba(79, 142, 255, 0.12)',
     alignSelf: 'flex-start',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: 'rgba(79, 142, 255, 0.25)',
     marginBottom: 20,
   },
   heroBadgeDot: {
@@ -262,25 +304,21 @@ const styles = StyleSheet.create({
   heroBadgeText: {
     fontFamily: 'Inter_500Medium',
     fontSize: 12,
-    color: Colors.accentLight,
   },
   heroName: {
     fontFamily: 'Inter_700Bold',
     fontSize: 32,
-    color: Colors.text,
     lineHeight: 38,
   },
   heroTitle: {
     fontFamily: 'Inter_700Bold',
     fontSize: 32,
-    color: Colors.accent,
     lineHeight: 38,
     marginBottom: 14,
   },
   heroSubtitle: {
     fontFamily: 'Inter_400Regular',
     fontSize: 15,
-    color: Colors.textSecondary,
     lineHeight: 23,
     marginBottom: 28,
     maxWidth: width * 0.8,
@@ -311,36 +349,30 @@ const styles = StyleSheet.create({
     paddingVertical: 13,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: Colors.border,
   },
   ctaSecondaryText: {
     fontFamily: 'Inter_600SemiBold',
     fontSize: 15,
-    color: Colors.textSecondary,
   },
   statsRow: {
     flexDirection: 'row',
     paddingHorizontal: 16,
     gap: 8,
     paddingVertical: 20,
-    backgroundColor: Colors.surface,
   },
   statCard: {
     flex: 1,
     alignItems: 'center',
     paddingVertical: 12,
-    backgroundColor: Colors.surface2,
     borderRadius: 12,
   },
   statValue: {
     fontFamily: 'Inter_700Bold',
     fontSize: 20,
-    color: Colors.text,
   },
   statLabel: {
     fontFamily: 'Inter_400Regular',
     fontSize: 11,
-    color: Colors.textMuted,
     marginTop: 2,
   },
   section: {
@@ -357,12 +389,10 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontFamily: 'Inter_700Bold',
     fontSize: 20,
-    color: Colors.text,
   },
   sectionLink: {
     fontFamily: 'Inter_500Medium',
     fontSize: 14,
-    color: Colors.accent,
   },
   serviceChip: {
     flexDirection: 'row',
@@ -390,7 +420,6 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: Colors.border,
   },
   contactBannerGradient: {
     flexDirection: 'row',
@@ -399,27 +428,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 20,
   },
-  contactBannerLeft: {
-    gap: 4,
-  },
+  contactBannerLeft: { gap: 4 },
   contactBannerTitle: {
     fontFamily: 'Inter_700Bold',
     fontSize: 17,
-    color: Colors.text,
   },
   contactBannerSub: {
     fontFamily: 'Inter_400Regular',
     fontSize: 13,
-    color: Colors.textSecondary,
   },
   contactBannerIcon: {
     width: 46,
     height: 46,
     borderRadius: 23,
-    backgroundColor: Colors.accentGlow,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: Colors.accent + '40',
   },
 });

@@ -6,14 +6,13 @@ import {
   ScrollView,
   Pressable,
   Platform,
-  Linking,
 } from 'react-native';
 import { router } from 'expo-router';
-import { Ionicons, Feather } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
-import Colors from '@/constants/colors';
+import { useTheme } from '@/contexts/ThemeContext';
 import { SERVICES } from '@/constants/services';
 
 const SKILLS = [
@@ -26,13 +25,14 @@ const SKILLS = [
 ];
 
 function SkillBar({ label, pct, color }: { label: string; pct: number; color: string }) {
+  const { colors } = useTheme();
   return (
     <View style={styles.skillRow}>
       <View style={styles.skillLabelRow}>
-        <Text style={styles.skillLabel}>{label}</Text>
+        <Text style={[styles.skillLabel, { color: colors.text }]}>{label}</Text>
         <Text style={[styles.skillPct, { color }]}>{pct}%</Text>
       </View>
-      <View style={styles.skillTrack}>
+      <View style={[styles.skillTrack, { backgroundColor: colors.surface2 }]}>
         <View style={[styles.skillFill, { width: `${pct}%` as any, backgroundColor: color }]} />
       </View>
     </View>
@@ -41,57 +41,85 @@ function SkillBar({ label, pct, color }: { label: string; pct: number; color: st
 
 export default function AboutScreen() {
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
   const topPadding = Platform.OS === 'web' ? 67 : insets.top;
   const bottomPadding = Platform.OS === 'web' ? 34 : 0;
 
+  const heroBgColors: [string, string] = colors.isDark
+    ? ['#0D1535', colors.bg]
+    : ['#DCEAFF', colors.bg];
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.bg }]}>
       <ScrollView
         contentContainerStyle={[styles.scrollContent, { paddingBottom: bottomPadding + 100 }]}
         showsVerticalScrollIndicator={false}
       >
         <LinearGradient
-          colors={['#0D1535', Colors.bg]}
+          colors={heroBgColors}
           style={[styles.profileSection, { paddingTop: topPadding + 24 }]}
         >
           <View style={styles.avatarContainer}>
             <LinearGradient
-              colors={[Colors.accent, Colors.cyan]}
+              colors={[colors.accent, colors.cyan]}
               style={styles.avatarGradient}
             >
               <Text style={styles.avatarInitials}>MS</Text>
             </LinearGradient>
-            <View style={styles.availableBadge}>
+            <View style={[styles.availableBadge, { borderColor: colors.bg }]}>
               <View style={styles.availableDot} />
             </View>
           </View>
 
-          <Text style={styles.profileName}>Muhammad Sameer</Text>
-          <Text style={styles.profileRole}>Digital Marketing & Development Expert</Text>
+          <Text style={[styles.profileName, { color: colors.text }]}>Muhammad Sameer</Text>
+          <Text style={[styles.profileRole, { color: colors.textSecondary }]}>
+            Digital Marketing & Development Expert
+          </Text>
 
           <View style={styles.profileTagsRow}>
             {['Marketing', 'Development', 'AI'].map((tag) => (
-              <View key={tag} style={styles.profileTag}>
-                <Text style={styles.profileTagText}>{tag}</Text>
+              <View
+                key={tag}
+                style={[
+                  styles.profileTag,
+                  { backgroundColor: colors.accentGlow, borderColor: colors.accent + '30' },
+                ]}
+              >
+                <Text style={[styles.profileTagText, { color: colors.accentLight }]}>{tag}</Text>
               </View>
             ))}
           </View>
         </LinearGradient>
 
         <View style={styles.bioSection}>
-          <View style={styles.bioCard}>
-            <Text style={styles.bioText}>
-              I'm a passionate digital services expert with 3+ years of experience helping businesses grow online. From startups to established companies, I provide end-to-end digital solutions — from building powerful websites and apps to running high-converting marketing campaigns.
+          <View
+            style={[
+              styles.bioCard,
+              { backgroundColor: colors.surface, borderColor: colors.border },
+            ]}
+          >
+            <Text style={[styles.bioText, { color: colors.textSecondary }]}>
+              I'm a passionate digital services expert with 3+ years of experience helping
+              businesses grow online. From startups to established companies, I provide
+              end-to-end digital solutions — from building powerful websites and apps to
+              running high-converting marketing campaigns.
             </Text>
-            <Text style={[styles.bioText, { marginTop: 12 }]}>
-              My mission is simple: deliver real results that grow your business. Whether you need a stunning website, targeted ads, or cutting-edge AI automation, I've got you covered.
+            <Text style={[styles.bioText, { color: colors.textSecondary, marginTop: 12 }]}>
+              My mission is simple: deliver real results that grow your business. Whether
+              you need a stunning website, targeted ads, or cutting-edge AI automation,
+              I've got you covered.
             </Text>
           </View>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Skills & Expertise</Text>
-          <View style={styles.skillsCard}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Skills & Expertise</Text>
+          <View
+            style={[
+              styles.skillsCard,
+              { backgroundColor: colors.surface, borderColor: colors.border },
+            ]}
+          >
             {SKILLS.map((skill) => (
               <SkillBar key={skill.label} label={skill.label} pct={skill.pct} color={skill.color} />
             ))}
@@ -99,47 +127,67 @@ export default function AboutScreen() {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>What I Offer</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>What I Offer</Text>
           <View style={styles.servicesGrid}>
             {SERVICES.map((service) => (
-              <View key={service.id} style={[styles.serviceTag, { backgroundColor: service.bgColor }]}>
+              <View
+                key={service.id}
+                style={[styles.serviceTag, { backgroundColor: service.bgColor }]}
+              >
                 <Ionicons name={service.iconName as any} size={15} color={service.color} />
-                <Text style={[styles.serviceTagText, { color: service.color }]}>{service.title}</Text>
+                <Text style={[styles.serviceTagText, { color: service.color }]}>
+                  {service.title}
+                </Text>
               </View>
             ))}
           </View>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Get in Touch</Text>
-          <View style={styles.contactCard}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Get in Touch</Text>
+          <View
+            style={[
+              styles.contactCard,
+              { backgroundColor: colors.surface, borderColor: colors.border },
+            ]}
+          >
             <View style={styles.contactRow}>
-              <View style={[styles.contactIcon, { backgroundColor: Colors.accentGlow }]}>
-                <Ionicons name="mail-outline" size={18} color={Colors.accent} />
+              <View style={[styles.contactIcon, { backgroundColor: colors.accentGlow }]}>
+                <Ionicons name="mail-outline" size={18} color={colors.accent} />
               </View>
               <View>
-                <Text style={styles.contactLabel}>Email</Text>
-                <Text style={styles.contactValue}>sameer@example.com</Text>
+                <Text style={[styles.contactLabel, { color: colors.textMuted }]}>Email</Text>
+                <Text style={[styles.contactValue, { color: colors.text }]}>
+                  sameer@example.com
+                </Text>
               </View>
             </View>
-            <View style={styles.divider} />
+            <View style={[styles.divider, { backgroundColor: colors.border }]} />
             <View style={styles.contactRow}>
-              <View style={[styles.contactIcon, { backgroundColor: 'rgba(34, 197, 94, 0.12)' }]}>
+              <View
+                style={[styles.contactIcon, { backgroundColor: 'rgba(34, 197, 94, 0.12)' }]}
+              >
                 <Ionicons name="call-outline" size={18} color="#22C55E" />
               </View>
               <View>
-                <Text style={styles.contactLabel}>Phone / WhatsApp</Text>
-                <Text style={styles.contactValue}>Available on request</Text>
+                <Text style={[styles.contactLabel, { color: colors.textMuted }]}>
+                  Phone / WhatsApp
+                </Text>
+                <Text style={[styles.contactValue, { color: colors.text }]}>
+                  Available on request
+                </Text>
               </View>
             </View>
-            <View style={styles.divider} />
+            <View style={[styles.divider, { backgroundColor: colors.border }]} />
             <View style={styles.contactRow}>
-              <View style={[styles.contactIcon, { backgroundColor: 'rgba(168, 85, 247, 0.12)' }]}>
+              <View
+                style={[styles.contactIcon, { backgroundColor: 'rgba(168, 85, 247, 0.12)' }]}
+              >
                 <Ionicons name="location-outline" size={18} color="#A855F7" />
               </View>
               <View>
-                <Text style={styles.contactLabel}>Location</Text>
-                <Text style={styles.contactValue}>Pakistan</Text>
+                <Text style={[styles.contactLabel, { color: colors.textMuted }]}>Location</Text>
+                <Text style={[styles.contactValue, { color: colors.text }]}>Pakistan</Text>
               </View>
             </View>
           </View>
@@ -153,7 +201,7 @@ export default function AboutScreen() {
           }}
         >
           <LinearGradient
-            colors={[Colors.accent, Colors.cyan]}
+            colors={[colors.accent, colors.cyan]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
             style={styles.ctaGradient}
@@ -168,13 +216,8 @@ export default function AboutScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.bg,
-  },
-  scrollContent: {
-    gap: 0,
-  },
+  container: { flex: 1 },
+  scrollContent: { gap: 0 },
   profileSection: {
     alignItems: 'center',
     paddingHorizontal: 20,
@@ -205,7 +248,6 @@ const styles = StyleSheet.create({
     borderRadius: 9,
     backgroundColor: '#22C55E',
     borderWidth: 3,
-    borderColor: Colors.bg,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -218,13 +260,11 @@ const styles = StyleSheet.create({
   profileName: {
     fontFamily: 'Inter_700Bold',
     fontSize: 24,
-    color: Colors.text,
     marginBottom: 4,
   },
   profileRole: {
     fontFamily: 'Inter_400Regular',
     fontSize: 14,
-    color: Colors.textSecondary,
     textAlign: 'center',
     marginBottom: 16,
   },
@@ -236,14 +276,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 6,
     borderRadius: 20,
-    backgroundColor: Colors.accentGlow,
     borderWidth: 1,
-    borderColor: Colors.accent + '30',
   },
   profileTagText: {
     fontFamily: 'Inter_500Medium',
     fontSize: 12,
-    color: Colors.accentLight,
   },
   bioSection: {
     paddingHorizontal: 16,
@@ -251,16 +288,13 @@ const styles = StyleSheet.create({
     paddingBottom: 4,
   },
   bioCard: {
-    backgroundColor: Colors.surface,
     borderRadius: 16,
     padding: 18,
     borderWidth: 1,
-    borderColor: Colors.border,
   },
   bioText: {
     fontFamily: 'Inter_400Regular',
     fontSize: 14,
-    color: Colors.textSecondary,
     lineHeight: 22,
   },
   section: {
@@ -271,19 +305,14 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontFamily: 'Inter_700Bold',
     fontSize: 18,
-    color: Colors.text,
   },
   skillsCard: {
-    backgroundColor: Colors.surface,
     borderRadius: 16,
     padding: 18,
     borderWidth: 1,
-    borderColor: Colors.border,
     gap: 16,
   },
-  skillRow: {
-    gap: 6,
-  },
+  skillRow: { gap: 6 },
   skillLabelRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -291,7 +320,6 @@ const styles = StyleSheet.create({
   skillLabel: {
     fontFamily: 'Inter_500Medium',
     fontSize: 13,
-    color: Colors.text,
   },
   skillPct: {
     fontFamily: 'Inter_600SemiBold',
@@ -299,7 +327,6 @@ const styles = StyleSheet.create({
   },
   skillTrack: {
     height: 6,
-    backgroundColor: Colors.surface2,
     borderRadius: 3,
     overflow: 'hidden',
   },
@@ -325,11 +352,9 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   contactCard: {
-    backgroundColor: Colors.surface,
     borderRadius: 16,
     padding: 18,
     borderWidth: 1,
-    borderColor: Colors.border,
     gap: 16,
   },
   contactRow: {
@@ -347,17 +372,12 @@ const styles = StyleSheet.create({
   contactLabel: {
     fontFamily: 'Inter_400Regular',
     fontSize: 12,
-    color: Colors.textMuted,
   },
   contactValue: {
     fontFamily: 'Inter_500Medium',
     fontSize: 14,
-    color: Colors.text,
   },
-  divider: {
-    height: 1,
-    backgroundColor: Colors.border,
-  },
+  divider: { height: 1 },
   ctaButton: {
     marginHorizontal: 16,
     marginTop: 28,

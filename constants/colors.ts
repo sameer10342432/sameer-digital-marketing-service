@@ -1,4 +1,4 @@
-const Colors = {
+export const darkColors = {
   bg: '#080C18',
   surface: '#111827',
   surface2: '#1C2540',
@@ -18,6 +18,7 @@ const Colors = {
   tabBar: '#0E1525',
   gradientStart: '#4F8EFF',
   gradientEnd: '#00C9E0',
+  isDark: true,
   serviceColors: {
     graphicDesign: '#FF6B9D',
     seo: '#22C55E',
@@ -33,4 +34,41 @@ const Colors = {
   },
 };
 
+export const lightColors = {
+  bg: '#F0F4FF',
+  surface: '#FFFFFF',
+  surface2: '#EAF0FF',
+  border: '#D6E1FF',
+  accent: '#3B78FF',
+  accentLight: '#6EA3FF',
+  accentGlow: 'rgba(59, 120, 255, 0.12)',
+  cyan: '#0099BB',
+  cyanGlow: 'rgba(0, 153, 187, 0.12)',
+  text: '#0A0F1E',
+  textSecondary: '#3A4A6B',
+  textMuted: '#7A90BB',
+  success: '#16A34A',
+  error: '#DC2626',
+  warning: '#D97706',
+  card: '#FFFFFF',
+  tabBar: '#FFFFFF',
+  gradientStart: '#3B78FF',
+  gradientEnd: '#0099BB',
+  isDark: false,
+  serviceColors: {
+    graphicDesign: '#E91E8C',
+    seo: '#16A34A',
+    webDev: '#3B78FF',
+    googleAds: '#D97706',
+    facebookAds: '#2563EB',
+    appDev: '#9333EA',
+    ai: '#0099BB',
+  },
+  light: {
+    tint: '#3B78FF',
+    tabIconDefault: '#7A90BB',
+  },
+};
+
+const Colors = darkColors;
 export default Colors;

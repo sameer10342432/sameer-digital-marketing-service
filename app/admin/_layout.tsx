@@ -1,12 +1,13 @@
 import { Stack } from 'expo-router';
-import Colors from '@/constants/colors';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function AdminLayout() {
+  const { colors } = useTheme();
   return (
     <Stack
       screenOptions={{
         headerShown: false,
-        contentStyle: { backgroundColor: Colors.bg },
+        contentStyle: { backgroundColor: colors.bg },
       }}
     >
       <Stack.Screen name="index" />

@@ -20,11 +20,12 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
-import Colors from '@/constants/colors';
+import { useTheme } from '@/contexts/ThemeContext';
 import { apiRequest } from '@/lib/query-client';
 
 export default function AdminLoginScreen() {
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
   const topPadding = Platform.OS === 'web' ? 67 : insets.top;
   const bottomPadding = Platform.OS === 'web' ? 34 : insets.bottom;
 
@@ -74,74 +75,97 @@ export default function AdminLoginScreen() {
   };
 
   return (
-    <View style={[styles.container, { paddingTop: topPadding, paddingBottom: bottomPadding }]}>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: colors.bg, paddingTop: topPadding, paddingBottom: bottomPadding },
+      ]}
+    >
       <Pressable style={styles.backBtn} onPress={() => router.back()}>
-        <Ionicons name="chevron-back" size={24} color={Colors.textSecondary} />
+        <Ionicons name="chevron-back" size={24} color={colors.textSecondary} />
       </Pressable>
 
       <View style={styles.content}>
         <View style={styles.logoArea}>
           <LinearGradient
-            colors={[Colors.accent, Colors.cyan]}
+            colors={[colors.accent, colors.cyan]}
             style={styles.logoGradient}
           >
             <Ionicons name="shield-checkmark" size={28} color="#fff" />
           </LinearGradient>
-          <Text style={styles.title}>Admin Panel</Text>
-          <Text style={styles.subtitle}>Sign in to manage inquiries</Text>
+          <Text style={[styles.title, { color: colors.text }]}>Admin Panel</Text>
+          <Text style={[styles.subtitle, { color: colors.textMuted }]}>
+            Sign in to manage inquiries
+          </Text>
         </View>
 
         <Animated.View style={[styles.form, shakeStyle]}>
           <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Username</Text>
-            <View style={styles.inputWrapper}>
-              <Ionicons name="person-outline" size={18} color={Colors.textMuted} style={styles.inputIcon} />
+            <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>Username</Text>
+            <View
+              style={[
+                styles.inputWrapper,
+                { backgroundColor: colors.surface, borderColor: colors.border },
+              ]}
+            >
+              <Ionicons
+                name="person-outline"
+                size={18}
+                color={colors.textMuted}
+                style={styles.inputIcon}
+              />
               <TextInput
-                style={styles.input}
+                style={[styles.input, { color: colors.text }]}
                 placeholder="Enter username"
-                placeholderTextColor={Colors.textMuted}
+                placeholderTextColor={colors.textMuted}
                 value={username}
                 onChangeText={setUsername}
                 autoCapitalize="none"
                 autoCorrect={false}
-                cursorColor={Colors.accent}
-                selectionColor={Colors.accent + '60'}
+                cursorColor={colors.accent}
+                selectionColor={colors.accent + '60'}
               />
             </View>
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Password</Text>
-            <View style={styles.inputWrapper}>
-              <Ionicons name="lock-closed-outline" size={18} color={Colors.textMuted} style={styles.inputIcon} />
+            <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>Password</Text>
+            <View
+              style={[
+                styles.inputWrapper,
+                { backgroundColor: colors.surface, borderColor: colors.border },
+              ]}
+            >
+              <Ionicons
+                name="lock-closed-outline"
+                size={18}
+                color={colors.textMuted}
+                style={styles.inputIcon}
+              />
               <TextInput
-                style={styles.input}
+                style={[styles.input, { color: colors.text }]}
                 placeholder="Enter password"
-                placeholderTextColor={Colors.textMuted}
+                placeholderTextColor={colors.textMuted}
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={!showPassword}
                 autoCapitalize="none"
-                cursorColor={Colors.accent}
-                selectionColor={Colors.accent + '60'}
+                cursorColor={colors.accent}
+                selectionColor={colors.accent + '60'}
               />
               <Pressable onPress={() => setShowPassword((s) => !s)}>
                 <Ionicons
                   name={showPassword ? 'eye-off-outline' : 'eye-outline'}
                   size={18}
-                  color={Colors.textMuted}
+                  color={colors.textMuted}
                 />
               </Pressable>
             </View>
           </View>
 
-          <Pressable
-            style={styles.loginBtn}
-            onPress={handleLogin}
-            disabled={loading}
-          >
+          <Pressable style={styles.loginBtn} onPress={handleLogin} disabled={loading}>
             <LinearGradient
-              colors={[Colors.accent, Colors.cyan]}
+              colors={[colors.accent, colors.cyan]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.loginGradient}
@@ -152,7 +176,9 @@ export default function AdminLoginScreen() {
             </LinearGradient>
           </Pressable>
 
-          <Text style={styles.hint}>Default: admin / admin</Text>
+          <Text style={[styles.hint, { color: colors.textMuted }]}>
+            Default: admin / admin
+          </Text>
         </Animated.View>
       </View>
     </View>
@@ -162,7 +188,6 @@ export default function AdminLoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.bg,
     paddingHorizontal: 20,
   },
   backBtn: {
@@ -191,42 +216,30 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: 'Inter_700Bold',
     fontSize: 26,
-    color: Colors.text,
   },
   subtitle: {
     fontFamily: 'Inter_400Regular',
     fontSize: 14,
-    color: Colors.textMuted,
   },
-  form: {
-    gap: 18,
-  },
-  inputGroup: {
-    gap: 8,
-  },
+  form: { gap: 18 },
+  inputGroup: { gap: 8 },
   inputLabel: {
     fontFamily: 'Inter_500Medium',
     fontSize: 13,
-    color: Colors.textSecondary,
   },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.surface,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: Colors.border,
     paddingHorizontal: 14,
     height: 52,
   },
-  inputIcon: {
-    marginRight: 10,
-  },
+  inputIcon: { marginRight: 10 },
   input: {
     flex: 1,
     fontFamily: 'Inter_400Regular',
     fontSize: 15,
-    color: Colors.text,
   },
   loginBtn: {
     borderRadius: 14,
@@ -245,7 +258,6 @@ const styles = StyleSheet.create({
   hint: {
     fontFamily: 'Inter_400Regular',
     fontSize: 12,
-    color: Colors.textMuted,
     textAlign: 'center',
   },
 });

@@ -18,13 +18,14 @@ import Animated, {
   withSequence,
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
-import Colors from '@/constants/colors';
+import { useTheme } from '@/contexts/ThemeContext';
 import { SERVICES } from '@/constants/services';
 
-function ServiceCard({ service, index }: { service: typeof SERVICES[0]; index: number }) {
+function ServiceCard({ service }: { service: typeof SERVICES[0] }) {
   const [expanded, setExpanded] = useState(false);
   const scale = useSharedValue(1);
   const animStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+  const { colors } = useTheme();
 
   const handlePress = () => {
     scale.value = withSequence(withSpring(0.97), withSpring(1));
@@ -38,36 +39,45 @@ function ServiceCard({ service, index }: { service: typeof SERVICES[0]; index: n
   };
 
   return (
-    <Animated.View style={[animStyle, styles.card]}>
+    <Animated.View
+      style={[
+        animStyle,
+        styles.card,
+        { backgroundColor: colors.surface, borderColor: colors.border },
+      ]}
+    >
       <Pressable onPress={handlePress}>
         <View style={styles.cardHeader}>
           <View style={[styles.iconBg, { backgroundColor: service.bgColor }]}>
             <Ionicons name={service.iconName as any} size={24} color={service.color} />
           </View>
           <View style={styles.cardTitleArea}>
-            <Text style={styles.cardTitle}>{service.title}</Text>
-            <Text style={styles.cardDesc} numberOfLines={expanded ? undefined : 2}>
+            <Text style={[styles.cardTitle, { color: colors.text }]}>{service.title}</Text>
+            <Text
+              style={[styles.cardDesc, { color: colors.textSecondary }]}
+              numberOfLines={expanded ? undefined : 2}
+            >
               {service.description}
             </Text>
           </View>
           <Ionicons
             name={expanded ? 'chevron-up' : 'chevron-down'}
             size={18}
-            color={Colors.textMuted}
+            color={colors.textMuted}
           />
         </View>
 
         {expanded && (
           <View style={styles.expandedContent}>
-            <View style={styles.divider} />
+            <View style={[styles.divider, { backgroundColor: colors.border }]} />
             {service.subItems.map((item) => (
               <View key={item} style={styles.subItem}>
                 <View style={[styles.subItemDot, { backgroundColor: service.color }]} />
-                <Text style={styles.subItemText}>{item}</Text>
+                <Text style={[styles.subItemText, { color: colors.textSecondary }]}>{item}</Text>
               </View>
             ))}
             <Pressable
-              style={[styles.detailBtn, { borderColor: service.color + '50' }]}
+              style={[styles.detailBtn, { borderColor: service.color + '50', backgroundColor: 'rgba(255,255,255,0.03)' }]}
               onPress={handleDetail}
             >
               <Text style={[styles.detailBtnText, { color: service.color }]}>
@@ -84,27 +94,33 @@ function ServiceCard({ service, index }: { service: typeof SERVICES[0]; index: n
 
 export default function ServicesScreen() {
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
   const topPadding = Platform.OS === 'web' ? 67 : insets.top;
   const bottomPadding = Platform.OS === 'web' ? 34 : 0;
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.bg }]}>
       <View style={[styles.header, { paddingTop: topPadding + 16 }]}>
         <LinearGradient
-          colors={[Colors.surface, Colors.bg]}
+          colors={colors.isDark ? [colors.surface, colors.bg] : ['#E8F0FF', colors.bg]}
           style={StyleSheet.absoluteFill}
         />
-        <Text style={styles.headerTitle}>Services</Text>
-        <Text style={styles.headerSubtitle}>Tap any service to explore</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Services</Text>
+        <Text style={[styles.headerSubtitle, { color: colors.textMuted }]}>
+          Tap any service to explore
+        </Text>
       </View>
 
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={[styles.scrollContent, { paddingBottom: bottomPadding + 100 }]}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingBottom: bottomPadding + 100 },
+        ]}
         showsVerticalScrollIndicator={false}
       >
-        {SERVICES.map((service, i) => (
-          <ServiceCard key={service.id} service={service} index={i} />
+        {SERVICES.map((service) => (
+          <ServiceCard key={service.id} service={service} />
         ))}
       </ScrollView>
     </View>
@@ -112,10 +128,7 @@ export default function ServicesScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.bg,
-  },
+  container: { flex: 1 },
   header: {
     paddingHorizontal: 20,
     paddingBottom: 20,
@@ -124,28 +137,22 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontFamily: 'Inter_700Bold',
     fontSize: 28,
-    color: Colors.text,
     marginBottom: 4,
   },
   headerSubtitle: {
     fontFamily: 'Inter_400Regular',
     fontSize: 14,
-    color: Colors.textMuted,
   },
-  scroll: {
-    flex: 1,
-  },
+  scroll: { flex: 1 },
   scrollContent: {
     paddingHorizontal: 16,
     paddingTop: 8,
     gap: 10,
   },
   card: {
-    backgroundColor: Colors.surface,
     borderRadius: 16,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: Colors.border,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -168,12 +175,10 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontFamily: 'Inter_600SemiBold',
     fontSize: 16,
-    color: Colors.text,
   },
   cardDesc: {
     fontFamily: 'Inter_400Regular',
     fontSize: 13,
-    color: Colors.textSecondary,
     lineHeight: 20,
   },
   expandedContent: {
@@ -183,7 +188,6 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: Colors.border,
     marginBottom: 4,
   },
   subItem: {
@@ -199,7 +203,6 @@ const styles = StyleSheet.create({
   subItemText: {
     fontFamily: 'Inter_400Regular',
     fontSize: 14,
-    color: Colors.textSecondary,
   },
   detailBtn: {
     flexDirection: 'row',
@@ -211,7 +214,6 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 10,
     borderWidth: 1,
-    backgroundColor: 'rgba(255,255,255,0.03)',
   },
   detailBtnText: {
     fontFamily: 'Inter_600SemiBold',
