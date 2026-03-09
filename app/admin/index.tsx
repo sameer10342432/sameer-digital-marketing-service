@@ -176,9 +176,6 @@ export default function AdminLoginScreen() {
             </LinearGradient>
           </Pressable>
 
-          <Text style={[styles.hint, { color: colors.textMuted }]}>
-            Default: admin / admin
-          </Text>
         </Animated.View>
       </View>
     </View>

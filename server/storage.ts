@@ -19,8 +19,8 @@ interface AdminCredentials {
 const inquiries: Inquiry[] = [];
 
 let adminCredentials: AdminCredentials = {
-  username: 'admin',
-  password: 'admin',
+  username: 'sameerliaqat81@gmail.com',
+  password: '####Sameer12345',
 };
 
 const SALT = crypto.randomBytes(32).toString('hex');
