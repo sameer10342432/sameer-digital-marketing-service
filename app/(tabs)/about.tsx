@@ -6,6 +6,7 @@ import {
   ScrollView,
   Pressable,
   Platform,
+  Linking,
 } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -14,6 +15,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { useTheme } from '@/contexts/ThemeContext';
 import { SERVICES } from '@/constants/services';
+
+const WHATSAPP_NUMBER = '923081800344';
+const GMAIL = 'sameerliaqat81@gmail.com';
+
+function openWhatsApp(message = '') {
+  const url = `https://wa.me/${WHATSAPP_NUMBER}${message ? `?text=${encodeURIComponent(message)}` : ''}`;
+  Linking.openURL(url);
+}
 
 const SKILLS = [
   { label: 'Digital Marketing', pct: 95, color: '#FF6B9D' },
@@ -151,38 +160,46 @@ export default function AboutScreen() {
               { backgroundColor: colors.surface, borderColor: colors.border },
             ]}
           >
-            <View style={styles.contactRow}>
+            <Pressable
+              style={styles.contactRow}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                Linking.openURL(`mailto:${GMAIL}`);
+              }}
+            >
               <View style={[styles.contactIcon, { backgroundColor: colors.accentGlow }]}>
                 <Ionicons name="mail-outline" size={18} color={colors.accent} />
               </View>
-              <View>
+              <View style={{ flex: 1 }}>
                 <Text style={[styles.contactLabel, { color: colors.textMuted }]}>Email</Text>
-                <Text style={[styles.contactValue, { color: colors.text }]}>
-                  sameer@example.com
-                </Text>
+                <Text style={[styles.contactValue, { color: colors.text }]}>{GMAIL}</Text>
               </View>
-            </View>
+              <Ionicons name="chevron-forward" size={15} color={colors.textMuted} />
+            </Pressable>
+
             <View style={[styles.divider, { backgroundColor: colors.border }]} />
-            <View style={styles.contactRow}>
-              <View
-                style={[styles.contactIcon, { backgroundColor: 'rgba(34, 197, 94, 0.12)' }]}
-              >
-                <Ionicons name="call-outline" size={18} color="#22C55E" />
+
+            <Pressable
+              style={styles.contactRow}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                openWhatsApp();
+              }}
+            >
+              <View style={[styles.contactIcon, { backgroundColor: 'rgba(37, 211, 102, 0.12)' }]}>
+                <Ionicons name="logo-whatsapp" size={18} color="#25D366" />
               </View>
-              <View>
-                <Text style={[styles.contactLabel, { color: colors.textMuted }]}>
-                  Phone / WhatsApp
-                </Text>
-                <Text style={[styles.contactValue, { color: colors.text }]}>
-                  Available on request
-                </Text>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.contactLabel, { color: colors.textMuted }]}>WhatsApp</Text>
+                <Text style={[styles.contactValue, { color: colors.text }]}>+92 308 1800344</Text>
               </View>
-            </View>
+              <Ionicons name="chevron-forward" size={15} color={colors.textMuted} />
+            </Pressable>
+
             <View style={[styles.divider, { backgroundColor: colors.border }]} />
+
             <View style={styles.contactRow}>
-              <View
-                style={[styles.contactIcon, { backgroundColor: 'rgba(168, 85, 247, 0.12)' }]}
-              >
+              <View style={[styles.contactIcon, { backgroundColor: 'rgba(168, 85, 247, 0.12)' }]}>
                 <Ionicons name="location-outline" size={18} color="#A855F7" />
               </View>
               <View>

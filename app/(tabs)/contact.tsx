@@ -8,6 +8,7 @@ import {
   TextInput,
   Platform,
   Alert,
+  Linking,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -258,8 +259,29 @@ export default function ContactScreen() {
       >
         <Text style={[styles.headerTitle, { color: colors.text }]}>Contact</Text>
         <Text style={[styles.headerSubtitle, { color: colors.textMuted }]}>
-          Fill out the form and I'll reach out shortly.
+          Fill out the form or reach out directly on WhatsApp.
         </Text>
+
+        <Pressable
+          style={[styles.whatsappBtn, { backgroundColor: 'rgba(37, 211, 102, 0.12)', borderColor: 'rgba(37, 211, 102, 0.3)' }]}
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            Linking.openURL('https://wa.me/923081800344');
+          }}
+        >
+          <Ionicons name="logo-whatsapp" size={22} color="#25D366" />
+          <View style={{ marginLeft: 10, flex: 1 }}>
+            <Text style={[styles.whatsappLabel, { color: '#25D366' }]}>Chat on WhatsApp</Text>
+            <Text style={[styles.whatsappNumber, { color: colors.textMuted }]}>+92 308 1800344</Text>
+          </View>
+          <Ionicons name="arrow-forward" size={18} color="#25D366" />
+        </Pressable>
+
+        <View style={styles.orRow}>
+          <View style={[styles.orLine, { backgroundColor: colors.border }]} />
+          <Text style={[styles.orText, { color: colors.textMuted }]}>or send a message</Text>
+          <View style={[styles.orLine, { backgroundColor: colors.border }]} />
+        </View>
 
         <View style={styles.form}>
           <InputField
@@ -339,7 +361,39 @@ const styles = StyleSheet.create({
   headerSubtitle: {
     fontFamily: 'Inter_400Regular',
     fontSize: 14,
-    marginBottom: 24,
+    marginBottom: 16,
+  },
+  whatsappBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 14,
+    borderWidth: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    marginBottom: 16,
+  },
+  whatsappLabel: {
+    fontFamily: 'Inter_600SemiBold',
+    fontSize: 15,
+  },
+  whatsappNumber: {
+    fontFamily: 'Inter_400Regular',
+    fontSize: 13,
+    marginTop: 1,
+  },
+  orRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+    gap: 10,
+  },
+  orLine: {
+    flex: 1,
+    height: 1,
+  },
+  orText: {
+    fontFamily: 'Inter_400Regular',
+    fontSize: 12,
   },
   form: { gap: 16 },
   inputGroup: { gap: 8 },
