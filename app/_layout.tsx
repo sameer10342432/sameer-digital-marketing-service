@@ -6,12 +6,14 @@ import {
   useFonts,
 } from '@expo-google-fonts/inter';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { Stack } from 'expo-router';
+import { Stack, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import React, { useEffect } from 'react';
+import { View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { FloatingWhatsApp } from '@/components/FloatingWhatsApp';
 import { queryClient } from '@/lib/query-client';
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
 
@@ -19,27 +21,33 @@ SplashScreen.preventAutoHideAsync();
 
 function RootLayoutNav() {
   const { colors } = useTheme();
+  const segments = useSegments();
+  const isAdmin = segments[0] === 'admin';
+
   return (
-    <Stack
-      screenOptions={{
-        headerBackTitle: 'Back',
-        headerStyle: { backgroundColor: colors.bg },
-        headerTintColor: colors.text,
-        contentStyle: { backgroundColor: colors.bg },
-      }}
-    >
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="admin" options={{ headerShown: false }} />
-      <Stack.Screen
-        name="service/[category]"
-        options={{
-          headerShown: true,
-          title: 'Service Details',
-          headerStyle: { backgroundColor: colors.surface },
+    <View style={{ flex: 1 }}>
+      <Stack
+        screenOptions={{
+          headerBackTitle: 'Back',
+          headerStyle: { backgroundColor: colors.bg },
           headerTintColor: colors.text,
+          contentStyle: { backgroundColor: colors.bg },
         }}
-      />
-    </Stack>
+      >
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="admin" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="service/[category]"
+          options={{
+            headerShown: true,
+            title: 'Service Details',
+            headerStyle: { backgroundColor: colors.surface },
+            headerTintColor: colors.text,
+          }}
+        />
+      </Stack>
+      {!isAdmin && <FloatingWhatsApp />}
+    </View>
   );
 }
 
